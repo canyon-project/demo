@@ -41,7 +41,7 @@ jobs:
       - run: npm i
 
       - name: Diff
-        run: npx @canyonjs/git-diff && cat diff.txt
+        run: npx @canyonjs/git-diff && cat diff.txt && ls
 
       - name: Run tests with coverage
         run: npm test
