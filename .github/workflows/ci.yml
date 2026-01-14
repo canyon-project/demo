@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - release-*
+  pull_request:
+    branches:
+      - main
+      - release-*
+  merge_group:
+    branches:
+      - main
+      # - release-*
+
+permissions:
+  contents: read
+
+# Ensure scripts are run with pipefail. See:
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#exit-codes-and-error-action-preference
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  coverage:
+    if: ${{ github.event_name != 'merge_group' }}
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+        with:
+          node-version: 'lts/*'
+      - run: npm i
+
+      - name: Diff
+        run: npx @canyonjs/git-diff
+
+      - name: Run tests with coverage
+        run: npm test
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: coverage
+          path: coverage
